@@ -576,11 +576,6 @@ def preprocess_our(table,pp,max_cv_samples, max_cv_peaks):
 def L1_norm(beta,p_emr,p_mr):
     return np.linalg.norm(np.matmul(p_emr,beta)-p_mr, ord=1)
 
-# Computes the best approximation of X based on a L1 norm
-# def L1_norm_1(beta,p_emr,p_mr):
-#     print(np.linalg.norm(np.matmul(p_emr,beta)-p_mr, ord=1))
-#     return np.linalg.norm(np.matmul(p_emr,beta)-p_mr, ord=1)
-
 # Minimizes Y-beta*X and save tha info in the selected lists (I must try to constrain)
 def f_calcula_l1(p_emr, p_mr, saving,end_members):
     beta = np.ones(end_members)*(1/end_members)
