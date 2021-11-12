@@ -5,7 +5,7 @@ import math
 
 plt.style.use(['science','nature'])
 
-# FUNCTIONS OUR NOVEL METHOD
+# FUNCTIONS OUR NOVEL DECONVOLUTION ALGORITHM
 
 def ouropt_1(unknowns, def_operations, em_peaks_mean, um_peaks_mean, tipo, cv, ignorar, nEM):
     # Function to compute the loss function for a given value of cv. This function is used to obtain optimal values of x and MR.
@@ -121,6 +121,220 @@ def convert_operations(operations_path):
     for operation in def_operations:
         tipo.append(str(len(operation[0]))+'/'+str(len(operation[1])))
     return def_operations, tipo
+
+
+# FUNCTIONS NOUVELLE IMPROVED DECONVOLUTION ALGORITHM
+
+def preprocess_nouvelle(table,pp,max_cv_peaks,max_cv_samples):
+    # print('- '*50)
+    if pp == 1:
+        #################################     Delete the peaks whose CV is larger than threshold value ##############################
+        auxiliar_df = (table.std(level=0, ddof = 1)*100/table.mean(level=0)).max(axis = 0)
+        ignorar = auxiliar_df[auxiliar_df>max_cv_peaks].index
+
+        #################################     Identify repetitions causing large CV and delete them ##############################
+        auxiliar_df = (table.std(level=0)*100/table.mean(level=0)).mean(axis = 1)
+        revisar = auxiliar_df[auxiliar_df>max_cv_samples].index
+        table.reset_index(inplace = True)
+        for i in revisar:
+            counter = np.argmax(np.mean(abs(table[table['Mix']==i].values[:,1:]-np.mean(table[table['Mix']==i].values[:,1:],axis = 0)), axis = 1))
+            position_i = auxiliar_df.index.tolist().index(i)
+            rep = table[table['Mix']==i].values.shape[0]
+            table.drop(position_i*rep + counter, inplace = True)
+        table.set_index('Mix', inplace = True)
+    return(table,list(map(int, ignorar.tolist())))
+
+def ratios(operations_path,dataset):
+    # n_p has the number of occurrences of each peak
+    # ratios results has the results of the ratios ... dah
+    # w_p has the weight of the ratios
+    # Def operations is a list that in each entry has the index of the peaks used for each ratio
+    with open(operations_path, 'r') as f: operations = f.read().splitlines()
+    dataset_access_format = "dataset['{}']"
+    ratios_results = dataset.filter(['Mix'])
+    def_operations = []
+    new_list = []
+    n_p = []
+    for q, operation in enumerate(operations):
+        def_operations.append([])
+        d=0
+        def_operations[q].append([])
+        multidigit = ''
+        for character in operation:
+            if character == '(':
+                next
+            elif character.isnumeric():
+                multidigit += character
+            elif character == '+' or character == '-' or character == ')':
+                def_operations[q][d].append(int(multidigit))
+                multidigit = ''
+            elif character == '/':  
+                d=1
+                def_operations[q].append([])
+    for q, operation in enumerate(def_operations):
+        numerator = ''
+        denominator = ''
+        for pos, x in enumerate(def_operations[q][0]):
+            if pos == 0:
+                numerator = numerator + dataset_access_format.format((x))
+            elif pos != 0:
+                numerator = numerator + '+'
+                numerator = numerator + dataset_access_format.format((x))
+        for pos, x in enumerate(def_operations[q][1]):
+            if pos == 0:
+                denominator = denominator + dataset_access_format.format((x))
+            elif pos != 0:
+                denominator = denominator + '+'
+                denominator = denominator + dataset_access_format.format((x))
+        ratios_results[operations[q]] = eval('('+numerator+')/('+denominator+')').values
+
+    for h in def_operations:
+        for i in h:
+            for j in i:
+                new_list.append(j)
+    a = len(new_list)
+    for i in range(max(new_list)):
+        n_p.append(new_list.count(i+1))
+    
+    #Weight and type of each ratio (uncertainty propagation is computed with different formulas depending on the type of ratio)
+    w_r=[]
+    tipo = []
+    for operation in def_operations:
+        tipo.append(str(len(operation[0]))+'/'+str(len(operation[1])))
+    for q, tip in enumerate(tipo):
+        a = len(def_operations[q][0]+def_operations[q][1])
+        if tip == '1/1':
+            w_r.append(a/(n_p[def_operations[q][0][0]-1]+n_p[def_operations[q][1][0]-1]))
+        elif tip == '1/2':
+            w_r.append(a/(n_p[def_operations[q][0][0]-1]+n_p[def_operations[q][1][0]-1]+n_p[def_operations[q][1][1]-1]))
+        elif tip == '1/3':
+            w_r.append(a/(n_p[def_operations[q][0][0]-1]+n_p[def_operations[q][1][0]-1]+n_p[def_operations[q][1][1]-1]+n_p[def_operations[q][1][2]-1]))
+        elif tip == '2/1':
+            w_r.append(3/(n_p[def_operations[q][0][0]-1]+n_p[def_operations[q][0][1]-1]+n_p[def_operations[q][1][0]-1]))
+        elif tip == '2/3':
+            w_r.append(5/(n_p[def_operations[q][0][0]-1]+n_p[def_operations[q][0][1]-1]+n_p[def_operations[q][1][0]-1]+n_p[def_operations[q][1][1]-1]+n_p[def_operations[q][1][2]-1]))
+    return ratios_results, w_r, tipo, def_operations
+
+def model(MR, Mix, nratios, proportions_values, em_peaks_mean_values, def_operations, tipo, EM): 
+    # Evaluates the ratios mixture model for the unkwnown mixtures for given values of MR
+    Mix_ratios_modeled=np.zeros((Mix,nratios))
+    for sin in range(Mix):
+        for q, _ in enumerate(def_operations):
+            Num, Den = 0, 0
+            if tipo[q] == '1/1':
+                for em in range(EM-1):
+                    Num = Num+MR[em]*proportions_values[sin,em]*em_peaks_mean_values[em,def_operations[q][0][0]-1]
+                    Den = Den+MR[em]*proportions_values[sin,em]*em_peaks_mean_values[em,def_operations[q][1][0]-1]
+                Num = Num + proportions_values[sin,em+1]*em_peaks_mean_values[em+1,def_operations[q][0][0]-1]
+                Den = Den + proportions_values[sin,em+1]*em_peaks_mean_values[em+1,def_operations[q][1][0]-1]
+            elif (tipo[q] == '1/2') or (tipo[q] == '1/2a') or (tipo[q] == '1/2b'):
+                for em in range(EM-1):
+                    Num = Num+MR[em]*proportions_values[sin,em]*em_peaks_mean_values[em,def_operations[q][0][0]-1]
+                    Den = Den+MR[em]*proportions_values[sin,em]*(em_peaks_mean_values[em,def_operations[q][1][0]-1]+em_peaks_mean_values[em,def_operations[q][1][1]-1])
+                Num = Num+proportions_values[sin,em+1]*em_peaks_mean_values[em+1,def_operations[q][0][0]-1]
+                Den = Den+proportions_values[sin,em+1]*(em_peaks_mean_values[em+1,def_operations[q][1][0]-1]+em_peaks_mean_values[em+1,def_operations[q][1][1]-1])
+            elif (tipo[q] == '2/1') or (tipo[q] == '2/1a') or (tipo[q] == '2/1b'):
+                for em in range(EM-1):
+                    Num = Num+MR[em]*proportions_values[sin,em]*(em_peaks_mean_values[em,def_operations[q][0][0]-1]+em_peaks_mean_values[em,def_operations[q][0][1]-1])
+                    Den = Den+MR[em]*proportions_values[sin,em]*em_peaks_mean_values[em,def_operations[q][1][0]-1]
+                Num = Num+proportions_values[sin,em+1]*(em_peaks_mean_values[em+1,def_operations[q][0][0]-1]+em_peaks_mean_values[em+1,def_operations[q][0][1]-1])
+                Den = Den+proportions_values[sin,em+1]*em_peaks_mean_values[em+1,def_operations[q][1][0]-1]
+            elif (tipo[q] == '1/3') or (tipo[q] == '1/3a') or (tipo[q] == '1/3b') or (tipo[q] == '1/3c'):
+                for em in range(EM-1):
+                    Num = Num+MR[em]*proportions_values[sin,em]*em_peaks_mean_values[em,def_operations[q][0][0]-1]
+                    Den = Den+MR[em]*proportions_values[sin,em]*(em_peaks_mean_values[em,def_operations[q][1][0]-1]+em_peaks_mean_values[em,def_operations[q][1][1]-1]+em_peaks_mean_values[em,def_operations[q][1][2]-1])
+                Num = Num+proportions_values[sin,em+1]*em_peaks_mean_values[em+1,def_operations[q][0][0]-1]
+                Den = Den+proportions_values[sin,em+1]*(em_peaks_mean_values[em+1,def_operations[q][1][0]-1]+em_peaks_mean_values[em+1,def_operations[q][1][1]-1]+em_peaks_mean_values[em+1,def_operations[q][1][2]-1])
+            elif (tipo[q] == '2/3') or (tipo[q] == '2/3a') or (tipo[q] == '2/3b') or (tipo[q] == '2/3c') or (tipo[q] == '2/3d') or (tipo[q] == '2/3e') or (tipo[q] == '2/3f') or (tipo[q] == '2/3g') or (tipo[q] == '2/3h') or (tipo[q] == '2/3i') or (tipo[q] == '2/3j') or (tipo[q] == '2/3k') or (tipo[q] == '2/3l'):
+                for em in range(EM-1):
+                    Num = Num+MR[em]*proportions_values[sin,em]*(em_peaks_mean_values[em,def_operations[q][0][0]-1]+em_peaks_mean_values[em,def_operations[q][0][1]-1])
+                    Den = Den+MR[em]*proportions_values[sin,em]*(em_peaks_mean_values[em,def_operations[q][1][0]-1]+em_peaks_mean_values[em,def_operations[q][1][1]-1]+em_peaks_mean_values[em,def_operations[q][1][2]-1])
+                Num = Num+proportions_values[sin,em+1]*(em_peaks_mean_values[em+1,def_operations[q][0][0]-1]+em_peaks_mean_values[em+1,def_operations[q][0][1]-1])
+                Den = Den+proportions_values[sin,em+1]*(em_peaks_mean_values[em+1,def_operations[q][1][0]-1]+em_peaks_mean_values[em+1,def_operations[q][1][1]-1]+em_peaks_mean_values[em+1,def_operations[q][1][2]-1])
+            Mix_ratios_modeled[sin,q]=Num/Den
+    return Mix_ratios_modeled
+
+def improved_loss_function_1(MR, Mix, nratios, proportions_values, em_peaks_mean_values, def_operations, tipo, nEM, syn_mix_ratios_mean, ignorar):
+    # Function to compute the loss function for a given value of MR. This function is used to obtain optimal values of MR.
+    Mix_ratios_modeled = np.zeros((Mix,nratios))
+    for sin in range(Mix):
+        for q, _ in enumerate(def_operations):
+            if len(set(def_operations[q][0]).intersection(ignorar))+len(set(def_operations[q][1]).intersection(ignorar))>0: continue
+            Num, Den = 0, 0
+            if tipo[q] == '1/1':
+                for em in range(nEM-1):
+                    Num = Num+MR[em]*proportions_values[sin,em]*em_peaks_mean_values[em,def_operations[q][0][0]-1]
+                    Den = Den+MR[em]*proportions_values[sin,em]*em_peaks_mean_values[em,def_operations[q][1][0]-1]
+                Num = Num + proportions_values[sin,em+1]*em_peaks_mean_values[em+1,def_operations[q][0][0]-1]
+                Den = Den + proportions_values[sin,em+1]*em_peaks_mean_values[em+1,def_operations[q][1][0]-1]
+            elif tipo[q] == '1/2':
+                for em in range(nEM-1):
+                    Num = Num+MR[em]*proportions_values[sin,em]*em_peaks_mean_values[em,def_operations[q][0][0]-1]
+                    Den = Den+MR[em]*proportions_values[sin,em]*(em_peaks_mean_values[em,def_operations[q][1][0]-1]+em_peaks_mean_values[em,def_operations[q][1][1]-1])
+                Num = Num+proportions_values[sin,em+1]*em_peaks_mean_values[em+1,def_operations[q][0][0]-1]
+                Den = Den+proportions_values[sin,em+1]*(em_peaks_mean_values[em+1,def_operations[q][1][0]-1]+em_peaks_mean_values[em+1,def_operations[q][1][1]-1])
+            elif tipo[q] == '2/1':
+                for em in range(nEM-1):
+                    Num = Num+MR[em]*proportions_values[sin,em]*(em_peaks_mean_values[em,def_operations[q][0][0]-1]+em_peaks_mean_values[em,def_operations[q][0][1]-1])
+                    Den = Den+MR[em]*proportions_values[sin,em]*em_peaks_mean_values[em,def_operations[q][1][0]-1]
+                Num = Num+proportions_values[sin,em+1]*(em_peaks_mean_values[em+1,def_operations[q][0][0]-1]+em_peaks_mean_values[em+1,def_operations[q][0][1]-1])
+                Den = Den+proportions_values[sin,em+1]*em_peaks_mean_values[em+1,def_operations[q][1][0]-1]
+            elif tipo[q] == '1/3':
+                for em in range(nEM-1):
+                    Num = Num+MR[em]*proportions_values[sin,em]*em_peaks_mean_values[em,def_operations[q][0][0]-1]
+                    Den = Den+MR[em]*proportions_values[sin,em]*(em_peaks_mean_values[em,def_operations[q][1][0]-1]+em_peaks_mean_values[em,def_operations[q][1][1]-1]+em_peaks_mean_values[em,def_operations[q][1][2]-1])
+                Num = Num+proportions_values[sin,em+1]*em_peaks_mean_values[em+1,def_operations[q][0][0]-1]
+                Den = Den+proportions_values[sin,em+1]*(em_peaks_mean_values[em+1,def_operations[q][1][0]-1]+em_peaks_mean_values[em+1,def_operations[q][1][1]-1]+em_peaks_mean_values[em+1,def_operations[q][1][2]-1])
+            elif tipo[q] == '2/3':
+                for em in range(nEM-1):
+                    Num = Num+MR[em]*proportions_values[sin,em]*(em_peaks_mean_values[em,def_operations[q][0][0]-1]+em_peaks_mean_values[em,def_operations[q][0][1]-1])
+                    Den = Den+MR[em]*proportions_values[sin,em]*(em_peaks_mean_values[em,def_operations[q][1][0]-1]+em_peaks_mean_values[em,def_operations[q][1][1]-1]+em_peaks_mean_values[em,def_operations[q][1][2]-1])
+                Num = Num+proportions_values[sin,em+1]*(em_peaks_mean_values[em+1,def_operations[q][0][0]-1]+em_peaks_mean_values[em+1,def_operations[q][0][1]-1])
+                Den = Den+proportions_values[sin,em+1]*(em_peaks_mean_values[em+1,def_operations[q][1][0]-1]+em_peaks_mean_values[em+1,def_operations[q][1][1]-1]+em_peaks_mean_values[em+1,def_operations[q][1][2]-1])
+            Mix_ratios_modeled[sin,q]=Num/Den
+    mini = np.log(1+(1/syn_mix_ratios_mean*(Mix_ratios_modeled-syn_mix_ratios_mean))**2)
+    return mini.sum()
+
+def improved_loss_function_2(xi, nratios, em_peaks_mean_values, tipo, nEM, MR, def_operations, UM_ratios, ignorar):
+    # Function to compute the loss function for a given value of x. This function is used to obtain optimal values of x.
+    global mini
+    CR=np.zeros(nratios)
+    for q, _ in enumerate(def_operations):
+        if len(set(def_operations[q][0]).intersection(ignorar))+len(set(def_operations[q][1]).intersection(ignorar))>0: continue
+        Num, Den = 0, 0
+        if tipo[q] == '1/1':
+            for em in range(nEM-1):
+                Num = Num+MR[em]*xi[em]*em_peaks_mean_values[em,def_operations[q][0][0]-1]
+                Den = Den+MR[em]*xi[em]*em_peaks_mean_values[em,def_operations[q][1][0]-1]
+            Num = Num + (100-np.sum(xi))*em_peaks_mean_values[em+1,def_operations[q][0][0]-1]
+            Den = Den + (100-np.sum(xi))*em_peaks_mean_values[em+1,def_operations[q][1][0]-1]
+        elif (tipo[q] == '1/2') or (tipo[q] == '1/2a') or (tipo[q] == '1/2b'):
+            for em in range(nEM-1):
+                Num = Num+MR[em]*xi[em]*em_peaks_mean_values[em,def_operations[q][0][0]-1]
+                Den = Den+MR[em]*xi[em]*(em_peaks_mean_values[em,def_operations[q][1][0]-1]+em_peaks_mean_values[em,def_operations[q][1][1]-1])
+            Num = Num+(100-np.sum(xi))*em_peaks_mean_values[em+1,def_operations[q][0][0]-1]
+            Den = Den+(100-np.sum(xi))*(em_peaks_mean_values[em+1,def_operations[q][1][0]-1]+em_peaks_mean_values[em+1,def_operations[q][1][1]-1])
+        elif (tipo[q] == '2/1') or (tipo[q] == '2/1a') or (tipo[q] == '2/1b'):
+            for em in range(nEM-1):
+                Num = Num+MR[em]*xi[em]*(em_peaks_mean_values[em,def_operations[q][0][0]-1]+em_peaks_mean_values[em,def_operations[q][0][1]-1])
+                Den = Den+MR[em]*xi[em]*em_peaks_mean_values[em,def_operations[q][1][0]-1]
+            Num = Num+(100-np.sum(xi))*(em_peaks_mean_values[em+1,def_operations[q][0][0]-1]+em_peaks_mean_values[em+1,def_operations[q][0][1]-1])
+            Den = Den+(100-np.sum(xi))*em_peaks_mean_values[em+1,def_operations[q][1][0]-1]
+        elif (tipo[q] == '1/3') or (tipo[q] == '1/3a') or (tipo[q] == '1/3b') or (tipo[q] == '1/3c'):
+            for em in range(nEM-1):
+                Num = Num+MR[em]*xi[em]*em_peaks_mean_values[em,def_operations[q][0][0]-1]
+                Den = Den+MR[em]*xi[em]*(em_peaks_mean_values[em,def_operations[q][1][0]-1]+em_peaks_mean_values[em,def_operations[q][1][1]-1]+em_peaks_mean_values[em,def_operations[q][1][2]-1])
+            Num = Num+(100-np.sum(xi))*em_peaks_mean_values[em+1,def_operations[q][0][0]-1]
+            Den = Den+(100-np.sum(xi))*(em_peaks_mean_values[em+1,def_operations[q][1][0]-1]+em_peaks_mean_values[em+1,def_operations[q][1][1]-1]+em_peaks_mean_values[em+1,def_operations[q][1][2]-1])
+        elif (tipo[q] == '2/3') or (tipo[q] == '2/3a') or (tipo[q] == '2/3b') or (tipo[q] == '2/3c') or (tipo[q] == '2/3d') or (tipo[q] == '2/3e') or (tipo[q] == '2/3f') or (tipo[q] == '2/3g') or (tipo[q] == '2/3h') or (tipo[q] == '2/3i') or (tipo[q] == '2/3j') or (tipo[q] == '2/3k') or (tipo[q] == '2/3l'):
+            for em in range(nEM-1):
+                Num = Num+MR[em]*xi[em]*(em_peaks_mean_values[em,def_operations[q][0][0]-1]+em_peaks_mean_values[em,def_operations[q][0][1]-1])
+                Den = Den+MR[em]*xi[em]*(em_peaks_mean_values[em,def_operations[q][1][0]-1]+em_peaks_mean_values[em,def_operations[q][1][1]-1]+em_peaks_mean_values[em,def_operations[q][1][2]-1])
+            Num = Num+(100-np.sum(xi))*(em_peaks_mean_values[em+1,def_operations[q][0][0]-1]+em_peaks_mean_values[em+1,def_operations[q][0][1]-1])
+            Den = Den+(100-np.sum(xi))*(em_peaks_mean_values[em+1,def_operations[q][1][0]-1]+em_peaks_mean_values[em+1,def_operations[q][1][1]-1]+em_peaks_mean_values[em+1,def_operations[q][1][2]-1])
+        CR[q]=Num/Den
+    mini=np.log(1+(1/UM_ratios*(UM_ratios-CR))**2)
+    return mini.sum()
 
 
 
