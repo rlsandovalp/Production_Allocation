@@ -515,13 +515,13 @@ def f_calcula_opt(p_emr,p_mr,saving,end_members,x0,residuals,eq_cond,bounds):
 def preprocess(table,pp,max_cv_peaks,max_cv_samples):
     if pp == 1:
         #################################     Delete the peaks whose CV is larger than threshold value ##############################
-        auxiliar_df = (table.std(level=0, ddof = 1)*100/table.mean(level=0)).max(axis = 0)
+        auxiliar_df = ((table.std(level=0, ddof = 1))*100/table.mean(level=0)).max(axis = 0)
         matar = auxiliar_df[auxiliar_df>max_cv_peaks].index
         for i in matar: 
             table.drop(i, axis = 1, inplace = True)
 
         #################################     Identify repetitions causing large CV and delete them ##############################
-        auxiliar_df = (table.std(level=0)*100/table.mean(level=0)).mean(axis = 1)
+        auxiliar_df = ((table.std(level=0))*100/table.mean(level=0)).mean(axis = 1)
         revisar = auxiliar_df[auxiliar_df>max_cv_samples].index
         table.reset_index(inplace = True)
         for i in revisar:
@@ -561,7 +561,7 @@ def preprocess_our(table,pp,max_cv_samples, max_cv_peaks):
         ignorar = auxiliar_df[auxiliar_df>max_cv_peaks].index
 
         #################################     Identify repetitions causing large CV and delete them ##############################
-        auxiliar_df = (table.std(level=0)*100/table.mean(level=0)).mean(axis = 1)
+        auxiliar_df = ((table.std(level=0))*100/table.mean(level=0)).mean(axis = 1)
         revisar = auxiliar_df[auxiliar_df>max_cv_samples].index
         table.reset_index(inplace = True)
         for i in revisar:

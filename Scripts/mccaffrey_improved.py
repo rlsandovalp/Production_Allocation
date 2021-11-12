@@ -19,8 +19,8 @@ def eq_cond(x, *args):
     return sum(x) - 1.0
 
 ######################   DEFINE VARIABLES   #########################
-folder = './../Data_Base/NGS_J19_DRK/'                                 
-file = 'NGS_J19_DRK'
+folder = './../Data_Base/FT3H_MSK2H/'                                 
+file = 'FT3H_MSK2H_raw'
 
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 11                       # How many peaks shall be used (if use_all_peaks == 1 this parameter is not read)
@@ -42,7 +42,8 @@ if use_all_peaks == 0:
     peaks = dataset.iloc[:,0:peaks_to_analyze+1]
 else:
     peaks = dataset
-if pp == 1: peaks = preprocess(peaks,pp,max_cv_peaks,max_cv_samples)
+if pp == 1: 
+    peaks = preprocess(peaks,pp,max_cv_peaks,max_cv_samples)
 
 ######################   INITIALIZE VARIABLES AND READ DATA   #########################
 rango1 = list((peaks).columns[1:])
@@ -85,11 +86,11 @@ for mixture in mixtures:
             calcula = fmin_slsqp(residuals, x0, args = (A, b), iprint = -1)
             EM[0].append(calcula[0])
             EM[1].append(calcula[1])
-            EM[2].append(calcula[2])
+            # EM[2].append(calcula[2])
         if is_the_first_time==1:
             saving[:,(mixture-1)*nEM] = np.array(EM[0])
             saving[:,(mixture-1)*nEM+1] = np.array(EM[1])
-            saving[:,(mixture-1)*nEM+2] = np.array(EM[2])
+            # saving[:,(mixture-1)*nEM+2] = np.array(EM[2])
         is_the_first_time=0
         a = []
         for i in range(nEM): a.append(sum(EM[i]) / len(EM[i]))
@@ -108,23 +109,24 @@ for mixture in mixtures:
         if veces<repetitions*0.2:
             saving_last[:,(mixture-1)*nEM] = np.array(EM[0])
             saving_last[:,(mixture-1)*nEM+1] = np.array(EM[1])
-            saving_last[:,(mixture-1)*nEM+2] = np.array(EM[2])
+            # saving_last[:,(mixture-1)*nEM+2] = np.array(EM[2])
 
     peaks_pa = peaks_mixture[rango]
     p_emr, p_mr = f_normalize(normalize,peaks_pa.values,nEM) # Take the peaks, normalize them if you want and separate EMs from mixture
     A = p_emr
     b = p_mr[:,0]
-    calcula = fmin_slsqp(residuals, x0, bounds = [(0,1),(0,1),(0,1)], args = (A, b), iprint = -1)
+    calcula = fmin_slsqp(residuals, x0, bounds = [(0,1),(0,1)], args = (A, b), iprint = -1)
     print('Deleted: ', deleted)
     results[mixture-1,:] = calcula*100
 
 # plt.show()
 X_todos = np.transpose(results)/100
 X_todos1 = X_todos/np.sum(X_todos,axis=0)
+# X_todos1 = X_todos
 conf_int_inf = X_todos - 5
 conf_int_sup = X_todos + 5
 for i in mixtures:
-    print('M'+str(i),X_todos1[0,i-1]*100,X_todos1[1,i-1]*100, X_todos1[2,i-1]*100)
+    print('M'+str(i),X_todos1[0,i-1]*100,X_todos1[1,i-1]*100)
 
 real_results = pd.read_csv(folder+"/p_"+file+".csv", delimiter=',').values[nEM:,1:]
 print(np.mean(abs(real_results - np.transpose(X_todos1*100))))

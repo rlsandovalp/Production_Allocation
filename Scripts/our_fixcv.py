@@ -3,20 +3,19 @@ from scipy.optimize import minimize
 from scipy.optimize import Bounds
 import pandas as pd
 from itertools import combinations
-from nouvelle_functions import *
-from PA_functions import plot_results, preprocess_nameless
+from PA_functions import plot_results, preprocess_our, ouropt_1, convert_operations
 from scipy.optimize import LinearConstraint
 
 ###############################     MODIFY!!!  ##################################
-folder = 'G:/My Drive/05 - PhD/2_Product_Allocation/Data_Base/Third_group/NGS_J19_DRK/'      # Directory                           
-file = 'NGS_J19_DRK'                        # Name of the file
+folder = './../Data_Base/FT3H_MSK2H/'      # Directory                           
+file = 'FT3H_MSK2H_Corrected'                        # Name of the file
 simultaneous = 1
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 11                       # How many peaks use?
 delta = 0.05                            
 pp = 0                                      # Preprocess? (1 Yes, 0 No)
 max_cv_samples = 10                         # Max intrasample CV for repetitions
-max_cv_peaks = 30                           # Max asasfasdfasdfa
+max_cv_peaks = 15                           # Max asasfasdfasdfa
 cv = 0.07
 #################################################################################
 
@@ -31,7 +30,7 @@ if use_all_peaks == 0:
 else:
     peaks = dataset.iloc[:,:]
 if pp == 1: 
-    peaks, ignorar = preprocess_nameless(peaks,pp,max_cv_samples, max_cv_peaks)
+    peaks, ignorar = preprocess_our(peaks,pp,max_cv_samples, max_cv_peaks)
 else:
     ignorar = []
 
@@ -76,7 +75,7 @@ for ni,i in enumerate(comb):
     linear_constraint = LinearConstraint(lc.tolist(), [100], [100])
 
     # Minimize objective function to obtain values of unknowns
-    res = minimize(ouropt4, unknowns, method = 'SLSQP', constraints=linear_constraint, bounds = bounds, args = (def_operations, em_peaks_mean.values, um_peaks_mean.values, tipo, cv, ignorar))
+    res = minimize(ouropt_1, unknowns, method = 'SLSQP', constraints=linear_constraint, bounds = bounds, args = (def_operations, em_peaks_mean.values, um_peaks_mean.values, tipo, cv, ignorar, nEM))
     unknowns = res.x
     
     # Print the results for each unknown mixture

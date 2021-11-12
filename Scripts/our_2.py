@@ -4,24 +4,24 @@ from scipy.optimize import Bounds
 import pandas as pd
 from itertools import combinations
 
-from PA_functions import plot_results, preprocess_our, ouropt_1, ouropt_2, convert_operations
+from PA_functions import plot_results, preprocess_our, ouropt_1, ouropt_2, convert_operations, preprocess_our
 from scipy.optimize import LinearConstraint
 from scipy.optimize import fsolve
 
 ###############################     MODIFY!!!  ##################################
-folder = './../Data_Base/NGS_J19_DRK/'      # Directory
-file = 'NGS_J19_DRK'                        # Name of the file
+folder = './../Data_Base/FT3H_MSK2H/'       # Directory                           
+file = 'MSK 2H_FRT 3H_Lab_Corrected'               # Name of the file
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
-peaks_to_analyze = 11                       # How many peaks use?
+peaks_to_analyze = 12                       # How many peaks use?
 delta = 0.05
-pp = 0                                      # Preprocess? (1 Yes, 0 No)
+pp = 1                                      # Preprocess? (1 Yes, 0 No)
 max_cv_samples = 10                         # Max intrasample CV for repetitions
 max_cv_peaks = 20                           # Max cv allowed for the repetitions of a peak
 cv = 0.5
 #################################################################################
 
 ################    HOW MANY END-MEMBERS, HOW MANY MIXTURES?    ########################
-dataset = pd.read_csv(folder+"/"+file+".csv").set_index('Mix')
+dataset = pd.read_csv(folder+file+".csv").set_index('Mix')
 nEM = len([i for i in dataset.index.unique().values.tolist() if i.startswith('EM')])
 nMix = len([i for i in dataset.index.unique().values.tolist() if i.startswith('M')])
 
@@ -31,7 +31,7 @@ if use_all_peaks == 0:
 else:
     peaks = dataset.iloc[:,:]
 if pp == 1: 
-    peaks, ignorar = preprocess_nameless(peaks,pp,max_cv_samples, max_cv_peaks)
+    peaks, ignorar = preprocess_our(peaks,pp,max_cv_samples, max_cv_peaks)
 else:
     ignorar = []
 
