@@ -101,5 +101,5 @@ for i in range(nMix):
 real_results = pd.read_csv(folder+"/p_"+file+".csv", delimiter=',').values[nEM:,1:]
 conf_int_sup = X_todos/100 + 5
 conf_int_inf = X_todos/100 - 5
-# plot_results(X_todos/100,conf_int_inf,conf_int_sup,real_results)
+plot_results(X_todos/100,conf_int_inf,conf_int_sup,real_results)
 print(np.mean(abs(X_todos-np.transpose(real_results))))
