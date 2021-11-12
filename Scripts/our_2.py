@@ -9,7 +9,7 @@ from scipy.optimize import LinearConstraint
 from scipy.optimize import fsolve
 
 ###############################     MODIFY!!!  ##################################
-folder = 'G:/My Drive/05 - PhD/2_Product_Allocation/Data_Base/Third_group/NGS_J19_DRK/'      # Directory
+folder = './../Data_Base/NGS_J19_DRK/'      # Directory
 file = 'NGS_J19_DRK'                        # Name of the file
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 11                       # How many peaks use?
