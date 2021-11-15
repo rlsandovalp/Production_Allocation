@@ -9,8 +9,8 @@ from scipy.optimize import LinearConstraint
 from scipy.optimize import fsolve
 
 ###############################     MODIFY!!!  ##################################
-folder = './../Data_Base/FT3H_MSK2H/'       # Directory                           
-file = 'MSK 2H_FRT 3H_Lab_Corrected'               # Name of the file
+folder = './../Data_Base/FT3H_MSK2H'        # Directory                           
+file = 'MSK 2H_FRT 3H_Lab_Corrected'        # Name of the file
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 12                       # How many peaks use?
 delta = 0.05
@@ -21,7 +21,7 @@ cv = 0.5
 #################################################################################
 
 ################    HOW MANY END-MEMBERS, HOW MANY MIXTURES?    ########################
-dataset = pd.read_csv(folder+file+".csv").set_index('Mix')
+dataset = pd.read_csv(folder+'/'+file+".csv").set_index('Mix')
 nEM = len([i for i in dataset.index.unique().values.tolist() if i.startswith('EM')])
 nMix = len([i for i in dataset.index.unique().values.tolist() if i.startswith('M')])
 
@@ -39,7 +39,7 @@ else:
 operations = 'operations_all.txt'
 if use_all_peaks == 0: 
     operations = 'operations'+str(peaks_to_analyze)+'.txt'
-operations_path=folder+operations
+operations_path=folder+'/'+operations
 
 # Convert the operations from the text file to an array easier to manipulate
 def_operations, tipo = convert_operations(operations_path)

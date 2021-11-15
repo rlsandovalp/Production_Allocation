@@ -3,7 +3,7 @@ from scipy.optimize import minimize, nnls, fmin_slsqp
 import matplotlib.pyplot as plt
 import math
 
-plt.style.use(['science','nature'])
+# plt.style.use(['science','nature'])
 
 # FUNCTIONS OUR NOVEL DECONVOLUTION ALGORITHM
 
@@ -608,7 +608,7 @@ def plot_results(X_todos,conf_int_inf,conf_int_sup,real_results):
     factors = X_todos.shape[0]
     mixtures = X_todos.shape[1]
     r = np.zeros((factors,mixtures))
-    plt.figure(figsize=(mixtures+4, 4), dpi = 250)
+    plt.figure(figsize=(mixtures+4, 4))
     barWidth = 0.3
     yer = (conf_int_sup-conf_int_inf)/2
     for factor in range(factors):
