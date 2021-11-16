@@ -19,8 +19,8 @@ def eq_cond(x, *args):
     return sum(x) - 1.0
 
 ######################   DEFINE VARIABLES   #########################
-folder = './../Data_Base/FT3H_MSK2H/'                                 
-file = 'FT3H_MSK2H_raw'
+folder = './../Data_Base/G510_FT3H_MSK2H/'                                 
+file = 'G510_FT3H_MSK2H_corrected'
 
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 11                       # How many peaks shall be used (if use_all_peaks == 1 this parameter is not read)
@@ -115,14 +115,13 @@ for mixture in mixtures:
     p_emr, p_mr = f_normalize(normalize,peaks_pa.values,nEM) # Take the peaks, normalize them if you want and separate EMs from mixture
     A = p_emr
     b = p_mr[:,0]
-    calcula = fmin_slsqp(residuals, x0, bounds = [(0,1),(0,1)], args = (A, b), iprint = -1)
+    calcula = fmin_slsqp(residuals, x0, bounds = [(0,1),(0,1)], eqcons = [eq_cond], args = (A, b), iprint = -1)
     print('Deleted: ', deleted)
     results[mixture-1,:] = calcula*100
 
 # plt.show()
 X_todos = np.transpose(results)/100
-X_todos1 = X_todos/np.sum(X_todos,axis=0)
-# X_todos1 = X_todos
+X_todos1 = X_todos
 conf_int_inf = X_todos - 5
 conf_int_sup = X_todos + 5
 for i in mixtures:

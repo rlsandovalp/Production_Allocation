@@ -9,8 +9,8 @@ from scipy.optimize import LinearConstraint
 from scipy.optimize import fsolve
 
 ###############################     MODIFY!!!  ##################################
-folder = './../Data_Base/FT3H_MSK2H'        # Directory                           
-file = 'MSK 2H_FRT 3H_Lab_Corrected'        # Name of the file
+folder = './../Data_Base/G510_FT3H_MSK2H/'                                 
+file = 'G510_FT3H_MSK2H_raw'
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 12                       # How many peaks use?
 delta = 0.05
