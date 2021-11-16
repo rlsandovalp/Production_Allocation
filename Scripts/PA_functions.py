@@ -478,12 +478,12 @@ def loss_function_2(xi, nratios, em_peaks_mean_values, tipo, EM, MR, def_operati
 
 
 # f_normalize normalize a given set of peaks based on the parameter normalize and separate the end-members from the mixture
-def f_normalize(normalize,peaks_averaged,end_members):
+def f_normalize(normalize,peaks_averaged,nEM):
     if normalize == 1:                                
         peaks_normalized = peaks_averaged/np.mean(peaks_averaged, axis=0)
     else:
         peaks_normalized = peaks_averaged
-    return np.transpose(peaks_normalized[0:end_members,:]), np.transpose(peaks_normalized[end_members:,:])
+    return np.transpose(peaks_normalized[0:nEM,:]), np.transpose(peaks_normalized[nEM:,:])
 
 # f_normalize normalize for ALS
 def f_normalize_als(normalize,b):
