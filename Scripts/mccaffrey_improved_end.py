@@ -17,9 +17,10 @@ use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 11                       # How many peaks shall be used (if use_all_peaks == 1 this parameter is not read)
 
 repetitions = 1000                          # Number of random lists to be generated in the bootstrapping
-tolerance = 0.10                            # Tolerance of the error in the bootstrapping
+tolerance = 0.15                            # Tolerance of the error in the bootstrapping
 rep_allowed_outside = 0.2                   # Percentage of the number of repetitions allowed to be outside of mean+-tolerance
 max_peaks_deleted = 0.6                     # Percentage of peaks allowed to be deleted during bootstrapping
+size_peak_boots = 0.7                       # Percentage of peaks used for bootstrapping
 
 normalize = 1                               # Normalize the peaks? (1 Yes, 0 No)
 pp = 1                                      # Preprocess? (1 Yes, 0 No)
@@ -43,8 +44,6 @@ if pp == 1:
 rango1 = list(peaks.columns[1:])
 peaks = peaks.set_index('Mix').mean(level=0)
 results = np.zeros((nMix,nEM))
-saving = np.empty((repetitions,nEM*nMix))
-saving_last = np.empty((repetitions,nEM*nMix))
 mixtures = [x+1 for x in range(nMix)]
 
 ################# DO THIS FOR EACH MIXTURE #########################
@@ -66,7 +65,7 @@ for mixture in mixtures:
         for i in range(nEM): EM.append([])
         ######### DO THIS PROCEDURE MANY MANY TIMES TO BE SURE THAT THE RANDOM RESULT IS RELIABLE ###########
         for i in range(1,repetitions+1):
-            randomlist = random.choices(rango, k=int(len(rango)*0.7))        
+            randomlist = random.choices(rango, k=int(len(rango)*size_peak_boots))        
             peaks_rango = reduced_dataset[randomlist]       # Select random peaks
             all_list.append(randomlist)                             # Save that range
             peaks_endmembers, peaks_mixtures = f_normalize(normalize,peaks_rango.values,nEM)
