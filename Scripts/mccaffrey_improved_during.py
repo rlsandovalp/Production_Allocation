@@ -3,7 +3,7 @@ import pandas as pd
 import random
 from scipy import stats
 from scipy.optimize import fmin_slsqp
-from PA_functions import f_normalize, preprocess, plot_results
+from PA_functions import preprocess, f_normalize, plot_results
 
 def residuals(x,A,b):
     hola = (A @ x) -b
