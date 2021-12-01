@@ -553,7 +553,7 @@ def preprocess_nouvelle(table,pp,max_cv_peaks,max_cv_samples):
     return(table,list(map(int, ignorar.tolist())))
 
 # preprocess nouvelle
-def preprocess_our(table,pp,max_cv_samples, max_cv_peaks):
+def preprocess_our(table, pp, max_cv_peaks, max_cv_samples):
     # print('- '*50)
     if pp == 1:
         #################################     Delete the peaks whose CV is larger than threshold value ##############################

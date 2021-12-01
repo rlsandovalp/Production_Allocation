@@ -29,11 +29,12 @@ for i in range(nMix):
 
 plt.figure(figsize=(nMix + 5, 6), dpi = 100)
 barWidth = 0.3
-
-
 r = np.zeros((nEM, nMix))
-for em in range(nEM):
-    plt.bar(np.arange(nMix)+barWidth*em, real_results[:,em], width = barWidth, edgecolor = 'black', capsize=7, label='EM'+str(em+1))
+
+plt.scatter(np.arange(nMix)+barWidth*0, real_results[:,0], color = 'red', label = 'True value EM1', marker = '_', s = 300)
+plt.scatter(np.arange(nMix)+barWidth*1, real_results[:,1], color = 'green', label = 'True value EM2', marker = '_', s = 300)
+plt.scatter(np.arange(nMix)+barWidth*2, real_results[:,2], color = 'blue', label = 'True value EM3', marker = '_', s = 300)
+
 plt.errorbar(np.arange(nMix)+barWidth*0, estimates[:,0], color = 'black', yerr=3*estimates_variability[:,0], label = 'Estimates', fmt='s', capsize=3)
 plt.errorbar(np.arange(nMix)+barWidth*1, estimates[:,1], color = 'black', yerr=3*estimates_variability[:,1], fmt='s', capsize=3)
 plt.errorbar(np.arange(nMix)+barWidth*2, estimates[:,2], color = 'black', yerr=3*estimates_variability[:,2], fmt='s', capsize=3)

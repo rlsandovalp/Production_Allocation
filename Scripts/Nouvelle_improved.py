@@ -5,9 +5,9 @@ from scipy.optimize import minimize, Bounds, LinearConstraint
 from PA_functions import ratios, model, improved_loss_function_1, improved_loss_function_2, preprocess_our
 
 ###############################     MODIFY!!!  ##################################
-folder = './../Data_Base/FT3H_MSK2H/'                                 
-file = 'FT3H_MSK2H_raw'
-nSM = 1
+folder = './../Data_Base/NGS_J19_DRK/'                                 
+file = 'NGS_J19_DRK'
+nSM = 2
 ratios_type = 'all'
 use_all_peaks = 1
 peaks_to_analyze = 11
@@ -27,7 +27,7 @@ if use_all_peaks == 0:
 else:
     peaks = dataset.iloc[:,:]
 if pp == 1: 
-    peaks, ignorar = preprocess_our(peaks,pp,max_cv_peaks,max_cv_samples)
+    peaks, ignorar = preprocess_our(peaks, pp, max_cv_peaks, max_cv_samples)
 else:
     ignorar = []
 
@@ -96,5 +96,5 @@ for i in comb:
             errors.append((abs(real_results_values[int((unknown_mixtures[um-1])[1:])-1,0]-res.x[0])+abs(real_results_values[int((unknown_mixtures[um-1])[1:])-1,1]-res.x[1])+abs(real_results_values[int((unknown_mixtures[um-1])[1:])-1,2]-(100-res.x[0]-res.x[1])))/3)
         else: print('number of end-members not implemented')
 
-# np.savetxt('../Results/Comparison_methods/Nouvelle/new_cv_'+ratios_type+'/Errors_'+str(nSM)+'CM.txt',errors)
-pd.DataFrame(estimates).to_csv('../Results/Comparison_methods/Nouvelle/new_cv_'+ratios_type+'/Estimates_'+str(nSM)+'CM_errors.txt', header = None, index = None)
+np.savetxt('../Results/'+file+'/Nouvelle/new_cv_'+ratios_type+'/Errors_'+str(nSM)+'CM.txt',errors)
+pd.DataFrame(estimates).to_csv('../Results/'+file+'/Nouvelle/new_cv_'+ratios_type+'/Estimates_'+str(nSM)+'CM.txt', header = None, index = None)
