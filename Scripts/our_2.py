@@ -9,8 +9,8 @@ from scipy.optimize import LinearConstraint
 from scipy.optimize import fsolve
 
 ###############################     MODIFY!!!  ##################################
-folder = './../Data_Base/G510_FT3H_MSK2H/'                                 
-file = 'G510_FT3H_MSK2H_raw'
+folder = './../Data_Base/NGS_J19_DRK/'                                 
+file = 'NGS_J19_DRK'
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 12                       # How many peaks use?
 delta = 0.05
@@ -31,7 +31,7 @@ if use_all_peaks == 0:
 else:
     peaks = dataset.iloc[:,:]
 if pp == 1: 
-    peaks, ignorar = preprocess_our(peaks,pp,max_cv_samples, max_cv_peaks)
+    peaks, ignorar = preprocess_our(peaks, pp, max_cv_peaks, max_cv_samples)
 else:
     ignorar = []
 
@@ -101,5 +101,6 @@ for i in range(nMix):
 real_results = pd.read_csv(folder+"/p_"+file+".csv", delimiter=',').values[nEM:,1:]
 conf_int_sup = X_todos/100 + 5
 conf_int_inf = X_todos/100 - 5
-plot_results(X_todos/100,conf_int_inf,conf_int_sup,real_results)
+# plot_results(X_todos/100,conf_int_inf,conf_int_sup,real_results)
 print(np.mean(abs(X_todos-np.transpose(real_results))))
+print(np.transpose(X_todos))

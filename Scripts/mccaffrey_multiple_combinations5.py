@@ -26,7 +26,7 @@ pp = 1                                      # Preprocess? (1 Yes, 0 No)
 max_cv_peaks = 20                           # Max intrasample CV for peaks
 max_cv_samples = 10                         # Max intrasample CV for repetitions
 
-unknown_mixture = 'M4'
+unknown_mixture = 'M5'
 
 ################    HOW MANY END-MEMBERS, HOW MANY MIXTURES?    ########################
 dataset = pd.read_csv(folder+"/"+file+".csv").set_index('Mix')
@@ -109,7 +109,7 @@ for repetition_endmember_1 in range(reps_em1):
                 peaks_pa = reduced_dataset[rango]
                 peaks_endmembers, peaks_mixtures = f_normalize(normalize,peaks_pa.values,nEM) # Take the peaks, normalize them if you want and separate EMs from mixture
                 muchos_resultados[hola,:] = fmin_slsqp(residuals, np.ones(nEM), bounds = [(0,1),(0,1),(0,1)], args = (peaks_endmembers, peaks_mixtures.reshape(-1)), iprint = -1)
+                muchos_resultados[hola,:] = muchos_resultados[0,:]/np.sum(muchos_resultados[0,:])
                 hola = hola + 1
                 print(hola,"/",reps_em1*reps_em2*reps_em3*reps_mix)
-
 np.savetxt('../Results/'+file+'/McCaffrey/'+unknown_mixture+'.txt', muchos_resultados)

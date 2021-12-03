@@ -98,4 +98,6 @@ for i in mixtures:
 
 real_results = pd.read_csv(folder+"/p_"+file+".csv", delimiter=',').values[nEM:,1:]
 print(np.mean(abs(real_results - np.transpose(X_todos*100))))
+
+print(np.transpose(X_todos)*100)
 plot_results(X_todos,X_todos-5,X_todos+5,real_results)
