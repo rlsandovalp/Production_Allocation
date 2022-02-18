@@ -8,13 +8,13 @@ from PA_functions import plot_results, preprocess_our, ouropt_1, ouropt_2, conve
 from scipy.optimize import LinearConstraint
 from scipy.optimize import fsolve
 
-folder = './../Data_Base/NGS_J19_DRK/'                                 
-file = 'NGS_J19_DRK'
+folder = './../Data_Base/NGS_J19_DRK_11/'                                 
+file = 'NGS_J19_DRK_11'
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
-peaks_to_analyze = 12                       # How many peaks use?
+peaks_to_analyze = 11                       # How many peaks use?
 delta = 0.05
 pp = 1                                      # Preprocess? (1 Yes, 0 No)
-max_cv_samples = 10                         # Max intrasample CV for repetitions
+max_cv_samples = 15                         # Max intrasample CV for repetitions
 max_cv_peaks = 20                           # Max cv allowed for the repetitions of a peak
 cv = 0.5
 
@@ -33,7 +33,7 @@ else:
     ignorar = []
 
 ################    WHERE ARE THE OPERATIONS?    ########################
-operations = 'operations_all.txt'
+operations = 'operations_11.txt'
 if use_all_peaks == 0:
     operations = 'operations.txt'
 operations_path=folder+'/'+operations
@@ -45,7 +45,7 @@ def_operations, tipo = convert_operations(operations_path)
 end_members = ['EM'+str(x+1) for x in range(nEM)]
 mixtures = ['M' + str(x+1) for x in range(nMix)]
 
-unknown_mixture = 'M4'
+unknown_mixture = 'M10'
 
 reps_em1 = dataset.loc['EM1'].values.shape[0]
 reps_em2 = dataset.loc['EM2'].values.shape[0]
@@ -97,8 +97,8 @@ for repetition_endmember_1 in range(reps_em1):
 
                 # Print and save the results for each unknown mixture
                 combinations_results[hola,:] = (unknowns[0], unknowns[1], unknowns[2], cv)
-                hola +=1
+                hola += 1
                 print(hola,"/",reps_em1*reps_em2*reps_em3*reps_mix)
-np.savetxt('../Results/'+unknown_mixture+'.txt', combinations_results)
+np.savetxt('../Results/'+file+'/'+'our/'+unknown_mixture+'.txt', combinations_results)
 
 

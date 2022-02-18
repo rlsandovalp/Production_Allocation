@@ -5,10 +5,10 @@ from scipy.optimize import minimize, Bounds, LinearConstraint
 from PA_functions import ratios, model, improved_loss_function_1, improved_loss_function_2, preprocess_our
 
 ###############################     MODIFY!!!  ##################################
-folder = './../Data_Base/NGS_J19_DRK/'                                 
-file = 'NGS_J19_DRK'
-nSM = 2
-ratios_type = 'all'
+folder = './../Data_Base/NGS_J19_DRK_11/'                                 
+file = 'NGS_J19_DRK_11'
+nSM = 1
+ratios_type = '11'
 use_all_peaks = 1
 peaks_to_analyze = 11
 pp = 1

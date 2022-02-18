@@ -11,9 +11,9 @@ def eq_cond(x, *args):
     return sum(x) - 1.0
 
 ######################   DEFINE VARIABLES   #########################
-group = './../Data_Base/G510_FT3H_MSK2H/'                                 
-dataset = 'G510_FT3H_MSK2H_corrected'
-mixtures = (1,2,3,4)                        # Mixtures to be analyzed
+group = './../Data_Base/NGS_J19_DRK_11/'                                 
+dataset = 'NGS_J19_DRK_11'
+mixtures = (1,2,3,4,5,6,7,8,9,10)                        # Mixtures to be analyzed
 max_cv_peaks = 20                           # Max intrasample CV for peaks
 max_cv_samples = 10                         # Max intrasample CV for repetitions
 pp = 1                                      # Preprocess? (1 Yes, 0 No)
@@ -69,5 +69,5 @@ for i in range(len(mixtures)): mixtures1.append(int(mixtures[i]-1))
 ######################   PLOT AND SAVE DATA   #########################
 print(np.mean(abs(real_results - np.transpose(X_todos1*100))))
 plot_results(X_todos1,conf_int_inf,conf_int_sup,real_results[mixtures1,:])
-# np.savetxt('../Results/Paper/McCaffrey_original/Estimations.csv',np.r_[np.transpose(X_todos)*100,np.transpose(conf_int_inf)*100,np.transpose(conf_int_sup)*100])
+np.savetxt('../Results/Paper/McCaffrey/Estimates.csv',np.r_[np.transpose(X_todos)*100,np.transpose(conf_int_inf)*100,np.transpose(conf_int_sup)*100])
 

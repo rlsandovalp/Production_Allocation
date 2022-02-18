@@ -10,8 +10,8 @@ def residuals(x,A,b):
     return np.linalg.norm(hola)
 
 ######################   DEFINE VARIABLES   #########################
-folder = './../Data_Base/NGS_J19_DRK/'                                 
-file = 'NGS_J19_DRK'
+folder = './../Data_Base/NGS_J19_DRK_11/'                                 
+file = 'NGS_J19_DRK_11'
 
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 11                       # How many peaks shall be used (if use_all_peaks == 1 this parameter is not read)

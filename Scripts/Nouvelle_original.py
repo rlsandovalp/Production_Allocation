@@ -6,15 +6,15 @@ from PA_functions import ratios, ratios_sd, model, preprocess_nouvelle, loss_fun
 import winsound
 
 ###############################     MODIFY!!!  ##################################
-folder = './../Data_Base/NGS_J19_DRK/'                                 
-file = 'NGS_J19_DRK'
+folder = './../Data_Base/NGS_J19_DRK_11/'                                 
+file = 'NGS_J19_DRK_11'
 nSM = 1
-ratios_type = 'all'
+ratios_type = '11'
 use_all_peaks = 1
 peaks_to_analyze = 11
 pp = 1
 max_cv_peaks = 20                           # Max intrasample CV for peaks
-max_cv_samples = 10                         # Max intrasample CV for repetitions
+max_cv_samples = 15                         # Max intrasample CV for repetitions
 #################################################################################
 
 ################    HOW MANY END-MEMBERS, HOW MANY MIXTURES?    ########################
