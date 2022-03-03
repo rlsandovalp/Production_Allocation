@@ -9,10 +9,10 @@ def residuals(x,A,b):
     hola = (A @ x) -b
     return np.linalg.norm(hola)
 
-folder = './../Data_Base/NGS_J19_DRK_11/'                                 
-file = 'NGS_J19_DRK_11'
+folder = './../Data_Base/NGS_J19_DRK/'                                 
+file = 'NGS_J19_DRK'
 
-use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
+use_all_peaks = 0                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 11                       # How many peaks shall be used (if use_all_peaks == 1 this parameter is not read)
 
 repetitions = 1000                          # Number of random lists to be generated in the bootstrapping
@@ -26,7 +26,7 @@ pp = 1                                      # Preprocess? (1 Yes, 0 No)
 max_cv_peaks = 20                           # Max intrasample CV for peaks
 max_cv_samples = 10                         # Max intrasample CV for repetitions
 
-unknown_mixture = 'M5'
+unknown_mixture = 'M3'
 
 ################    HOW MANY END-MEMBERS, HOW MANY MIXTURES?    ########################
 dataset = pd.read_csv(folder+"/"+file+".csv").set_index('Mix')
@@ -35,39 +35,35 @@ nMix = len([i for i in dataset.index.unique().values.tolist() if i.startswith('M
 
 ################    PREPROCESSING    ########################
 if use_all_peaks == 0: 
-    peaks = dataset.iloc[:,0:peaks_to_analyze+1]
+    peaks = dataset.iloc[:,0:peaks_to_analyze]
 else:
     peaks = dataset
 if pp == 1: 
     peaks = preprocess(peaks,pp,max_cv_peaks,max_cv_samples)
 
 ######################   INITIALIZE VARIABLES AND READ DATA   #########################
-rango1 = list(peaks.columns[1:])
-peaks = peaks.set_index('Mix')
+rango1 = list(peaks.columns[:])
 mixtures = [x+1 for x in range(nMix)]
 
 ################ CREATE THE SPACE OF ANALYSIS (i.e. select end members and mixture) #################
 
-dataset.set_index('Mix', inplace = True)
-reps_em1 = dataset.loc['EM1'].values.shape[0]
-reps_em2 = dataset.loc['EM2'].values.shape[0]
-reps_em3 = dataset.loc['EM3'].values.shape[0]
-reps_mix = dataset.loc[unknown_mixture].values.shape[0]
-peaks = dataset.loc['EM1'].values.shape[1]
+reps_em1 = peaks.loc['EM1'].values.shape[0]
+reps_em2 = peaks.loc['EM2'].values.shape[0]
+reps_em3 = peaks.loc['EM3'].values.shape[0]
+reps_mix = peaks.loc[unknown_mixture].values.shape[0]
+npeaks = peaks.loc['EM1'].values.shape[1]
 
-combinations_results = np.zeros((reps_em1*reps_em2*reps_em3*reps_mix,nEM+1))
-
-muchos_resultados = np.zeros((reps_em1*reps_em2*reps_em3*reps_mix,3))
+muchos_resultados = np.zeros((reps_em1*reps_em2*reps_em3*reps_mix,nEM))
 
 hola = 0
 for repetition_endmember_1 in range(reps_em1):
     for repetition_endmember_2 in range(reps_em2):
         for repetition_endmember_3 in range(reps_em3):
             for repetition_mixture in range(reps_mix):
-                reduced_dataset_1 = dataset.loc['EM1'].iloc[[repetition_endmember_1]]
-                reduced_dataset_2 = dataset.loc['EM2'].iloc[[repetition_endmember_2]]
-                reduced_dataset_3 = dataset.loc['EM3'].iloc[[repetition_endmember_3]]
-                reduced_dataset_4 = dataset.loc[unknown_mixture].iloc[[repetition_mixture]]
+                reduced_dataset_1 = peaks.loc['EM1'].iloc[[repetition_endmember_1]]
+                reduced_dataset_2 = peaks.loc['EM2'].iloc[[repetition_endmember_2]]
+                reduced_dataset_3 = peaks.loc['EM3'].iloc[[repetition_endmember_3]]
+                reduced_dataset_4 = peaks.loc[unknown_mixture].iloc[[repetition_mixture]]
                 reduced_dataset = pd.merge(reduced_dataset_1, reduced_dataset_2, how = 'outer')
                 reduced_dataset = pd.merge(reduced_dataset, reduced_dataset_3, how = 'outer')
                 reduced_dataset = pd.merge(reduced_dataset, reduced_dataset_4, how = 'outer')
@@ -112,4 +108,4 @@ for repetition_endmember_1 in range(reps_em1):
                 muchos_resultados[hola,:] = muchos_resultados[hola,:]/np.sum(muchos_resultados[hola,:])
                 hola = hola + 1
                 print(hola,"/",reps_em1*reps_em2*reps_em3*reps_mix)
-np.savetxt('../Results/'+file+'/McCaffrey/'+unknown_mixture+'.txt', muchos_resultados)
+np.savetxt('../Results/'+file+'_11/McCaffrey/'+unknown_mixture+'.txt', muchos_resultados)

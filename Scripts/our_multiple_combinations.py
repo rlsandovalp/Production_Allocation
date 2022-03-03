@@ -8,8 +8,8 @@ from PA_functions import plot_results, preprocess_our, ouropt_1, ouropt_2, conve
 from scipy.optimize import LinearConstraint
 from scipy.optimize import fsolve
 
-folder = './../Data_Base/NGS_J19_DRK_11/'                                 
-file = 'NGS_J19_DRK_11'
+folder = './../Data_Base/NGS_J19_DRK/'                                 
+file = 'NGS_J19_DRK'
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 11                       # How many peaks use?
 delta = 0.05

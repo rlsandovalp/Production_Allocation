@@ -15,7 +15,7 @@ for m, mixture in enumerate(mixtures):
 
     deconvolutions = pd.read_csv(folder+mixture+'.txt', sep = ' ').values
     true = pd.read_csv(folder+'../real_results.txt', header = None, sep = ',').set_index(0)
-    averaged =  pd.read_csv(folder+'averaged.txt', header = None, sep = ',').set_index(0)
+    averaged =  pd.read_csv(folder+'Average_before_deconvolution.txt', header = None, sep = ',').set_index(0)
     compositional_mean = pd.read_csv(folder+'compositional_mean.txt', header = None, sep = ',').set_index(0)
 
     k = m
@@ -38,10 +38,10 @@ for m, mixture in enumerate(mixtures):
     tax.left_axis_label("EM3 [%]", fontsize=fontsize, offset=offset)
     tax.right_axis_label("EM2 [%]", fontsize=fontsize, offset=offset)
     tax.bottom_axis_label("EM1 [%]", fontsize=fontsize, offset=offset)
-    tax.scatter(deconvolutions*100, marker='.', label="Individual Estimates, " r'$x_{k,Mc}$', color = 'gray')
-    tax.scatter([true.loc[mixture].values], marker='o', label="True value, " r'$x_{k}^{*}$', color = 'green')
-    tax.scatter([averaged.loc[mixture].values], marker='o', label="Estimates by employing all repetitions, " r'$\bar{\bar{x}}_{k,Mc}$', color = 'red')
-    tax.scatter([compositional_mean.loc[mixture].values], marker='x', label="Compositional mean, " r'$\bar{x}_{k,Mc}$', color = 'black')
+    tax.scatter(deconvolutions*100, marker='.', label="Estimates, " r'$\mathbf{\hat{x}}_{Mc}$', color = 'gray')
+    tax.scatter([true.loc[mixture].values], marker='o', label="True value, " r'$\mathbf{x}^{*}$', color = 'green')
+    tax.scatter([averaged.loc[mixture].values], marker='o', label="Estimates, " r'$\bar{\bar{\mathbf{x}}}_{Mc}$', color = 'red')
+    tax.scatter([compositional_mean.loc[mixture].values], marker='x', label="Compositional mean, " r'$\bar{\mathbf{x}}_{Mc}$', color = 'black')
 
 
     # Set ticks

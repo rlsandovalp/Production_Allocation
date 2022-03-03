@@ -14,12 +14,9 @@ folder = '../Results/NGS_J19_DRK/ALS/'
 
 
 for m, mixture in enumerate(mixtures):
-    estimates = []
-    # deconvolutions = pd.read_csv(folder+mixture+'.txt', sep = ' ').values
-    for i in range(100):
-        estimates.append(pd.read_csv(folder+'Best_100/xo'+str(i)+'.csv', sep = ',', header=None).values[m,:]*100)
+    deconvolutions = pd.read_csv(folder+mixture+'.txt', sep = '\t').values[:1000,:3]*100
     true = pd.read_csv(folder+'../real_results.txt', header = None, sep = ',').set_index(0)
-    best =  pd.read_csv(folder+'best.txt', header = None, sep = ',').set_index(0)*100
+    best =  pd.read_csv(folder+'Average_before_deconvolution.txt', header = None, sep = ',').set_index(0)*100
     compositional_mean = pd.read_csv(folder+'compositional_mean.txt', header = None, sep = ',').set_index(0)
 
     k = m
@@ -43,10 +40,10 @@ for m, mixture in enumerate(mixtures):
     tax.right_axis_label("EM2 [%]", fontsize=fontsize, offset=offset)
     tax.bottom_axis_label("EM1 [%]", fontsize=fontsize, offset=offset)
 
-    tax.scatter(estimates, marker='.', label="Individual Estimates", color = 'gray')
-    tax.scatter([compositional_mean.loc[mixture].values], marker='x', label="Compositional mean", color = 'black')
-    tax.scatter([true.loc[mixture].values], marker='o', label="True value", color = 'green')
-    tax.scatter([best.loc[mixture].values], marker='o', label= r"Best estimate after $10^4$ initializations of A", color = 'red')
+    tax.scatter(deconvolutions, marker='.', label="Estimates, " r'$\mathbf{\hat{{x}}}_{ALS}$', color = 'gray')
+    tax.scatter([true.loc[mixture].values], marker='o', label="True value, " r'$\mathbf{x}^{*}$', color = 'green')
+    tax.scatter([best.loc[mixture].values], marker='o', label="Estimates, " r'$\bar{\bar{\mathbf{x}}}_{ALS}$', color = 'red')
+    tax.scatter([compositional_mean.loc[mixture].values], marker='x', label="Compositional mean, " r'$\bar{\mathbf{x}}_{ALS}$', color = 'black')
 
 
     # Set ticks

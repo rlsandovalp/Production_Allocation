@@ -33,8 +33,8 @@ def ouropt_2(cv, unknowns, def_operations, em_peaks_mean, um_peaks_mean, tipo, i
         phi = (1/cv)*(1+rij/Rij)/(math.sqrt(2*(1+(rij/Rij)**2)))
         gam = math.sqrt(math.pi)*phi*math.exp(phi**2)*math.erf(phi)
         uno = math.log(1+gam)
-        mini = mini + uno
-    mini = -mini + (len(def_operations)-ignorados)/(cv**2)
+        mini = mini - uno
+    mini = mini + (len(def_operations)-ignorados)/(cv**2)
     return mini
 
 def compute_ratios_our(Num, Den, unknowns, nEM, em_peaks_mean, um_peaks_mean, q, def_operations, tipo):
@@ -529,7 +529,7 @@ def preprocess(table,pp,max_cv_peaks,max_cv_samples):
             position_i = auxiliar_df.index.tolist().index(i)
             rep = table[table['Mix']==i].values.shape[0]
             table.drop(position_i*rep + counter, inplace = True)
-        table.set_index('Mix')
+        table.set_index('Mix', inplace = True)
     return(table)
 
 # preprocess nouvelle

@@ -10,14 +10,14 @@ def residuals(x,A,b):
     return np.linalg.norm(hola)
 
 ######################   DEFINE VARIABLES   #########################
-folder = './../Data_Base/NGS_J19_DRK_11/'                                 
-file = 'NGS_J19_DRK_11'
+case = 'NGS_J19_DRK_11'
+folder = './../Data_Base/'                                 
 
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 11                       # How many peaks shall be used (if use_all_peaks == 1 this parameter is not read)
 
 repetitions = 1000                          # Number of random lists to be generated in the bootstrapping
-tolerance = 0.15                            # Tolerance of the error in the bootstrapping
+tolerance = 0.20                            # Tolerance of the error in the bootstrapping
 rep_allowed_outside = 0.2                   # Percentage of the number of repetitions allowed to be outside of mean+-tolerance
 max_peaks_deleted = 0.6                     # Percentage of peaks allowed to be deleted during bootstrapping
 size_peak_boots = 0.7                       # Percentage of peaks used for bootstrapping
@@ -28,7 +28,7 @@ max_cv_peaks = 20                           # Max intrasample CV for peaks
 max_cv_samples = 10                         # Max intrasample CV for repetitions
 
 ################    HOW MANY END-MEMBERS, HOW MANY MIXTURES?    ########################
-dataset = pd.read_csv(folder+"/"+file+".csv").set_index('Mix')
+dataset = pd.read_csv(folder+'/'+case+'/'+case+".csv").set_index('Mix')
 nEM = len([i for i in dataset.index.unique().values.tolist() if i.startswith('EM')])
 nMix = len([i for i in dataset.index.unique().values.tolist() if i.startswith('M')])
 
@@ -96,8 +96,3 @@ for i in mixtures:
     if nEM == 2: print('M'+str(i),X_todos[0,i-1]*100,X_todos[1,i-1]*100)
     if nEM == 3: print('M'+str(i),X_todos[0,i-1]*100,X_todos[1,i-1]*100,X_todos[2,i-1]*100)
 
-real_results = pd.read_csv(folder+"/p_"+file+".csv", delimiter=',').values[nEM:,1:]
-print(np.mean(abs(real_results - np.transpose(X_todos*100))))
-
-print(np.transpose(X_todos)*100)
-plot_results(X_todos,X_todos-5,X_todos+5,real_results)

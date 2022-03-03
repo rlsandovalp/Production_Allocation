@@ -6,10 +6,10 @@ from PA_functions import ratios, ratios_sd, model, preprocess_nouvelle, loss_fun
 import winsound
 
 ###############################     MODIFY!!!  ##################################
-folder = './../Data_Base/NGS_J19_DRK_11/'                                 
-file = 'NGS_J19_DRK_11'
+folder = './../Data_Base/'                                 
+case = 'NGS_J19_DRK'
 nSM = 1
-ratios_type = '11'
+ratios_type = 'all'
 use_all_peaks = 1
 peaks_to_analyze = 11
 pp = 1
@@ -18,7 +18,7 @@ max_cv_samples = 15                         # Max intrasample CV for repetitions
 #################################################################################
 
 ################    HOW MANY END-MEMBERS, HOW MANY MIXTURES?    ########################
-dataset = pd.read_csv(folder+"/"+file+".csv").set_index('Mix')
+dataset = pd.read_csv(folder+"/"+case+'/'+case+".csv").set_index('Mix')
 nEM = len([i for i in dataset.index.unique().values.tolist() if i.startswith('EM')])
 nMix = len([i for i in dataset.index.unique().values.tolist() if i.startswith('M')])
 
@@ -34,17 +34,16 @@ else:
 
 ################    WHERE IS THE OPERATIONS FILE?    ########################
 operations = 'operations_'+ratios_type+'.txt'
-if use_all_peaks == 0: operations = 'operations'+str(peaks_to_analyze)+'.txt'
-operations_path=folder+operations
+if use_all_peaks == 0: operations = 'operations_'+str(peaks_to_analyze)+'.txt'
+operations_path=folder+'/'+case+'/'+operations
 
 # Define end members and mixtures list, then create combinations
 end_members = ['EM'+str(x+1) for x in range(nEM)]
 mixtures = ['M' + str(x+1) for x in range(nMix)]
 comb = list(combinations(mixtures, nSM))
-real_results = pd.read_csv(folder+"/p_"+file+".csv", delimiter=',')
+real_results = pd.read_csv(folder+'/'+case+"/p_"+case+".csv")
 real_results_values = real_results.values[nEM:,1:]
 
-errors = []
 estimates = []
 
 for i in comb:
@@ -108,16 +107,14 @@ for i in comb:
 
         if nEM == 2:
             print(unknown_mixtures[um-1], res.x[0], 100-res.x[0])
-            errors.append((abs(real_results_values[int((unknown_mixtures[um-1])[1:])-1,0]-res.x[0])+abs(real_results_values[int((unknown_mixtures[um-1])[1:])-1,1]-(100-res.x[0])))/nEM)
+            estimates.append([unknown_mixtures[um-1], res.x[0], 100-res.x[0]])
         elif nEM == 3:
             print(unknown_mixtures[um-1], res.x[0], res.x[1], 100-res.x[0]-res.x[1])
             estimates.append([unknown_mixtures[um-1], res.x[0], res.x[1], 100-res.x[0]-res.x[1]])
-            errors.append((abs(real_results_values[int((unknown_mixtures[um-1])[1:])-1,0]-res.x[0])+abs(real_results_values[int((unknown_mixtures[um-1])[1:])-1,1]-res.x[1])+abs(real_results_values[int((unknown_mixtures[um-1])[1:])-1,2]-(100-res.x[0]-res.x[1])))/3)
         else: print('number of end-members not implemented')
 
 
-np.savetxt('../Results/Comparison_methods/Nouvelle/original_'+ratios_type+'/Errors_'+str(nSM)+'CM.txt',errors)
-pd.DataFrame(estimates).to_csv('../Results/Comparison_methods/Nouvelle/original_'+ratios_type+'/Estimates_'+str(nSM)+'CM.txt', header = None, index = None)
+pd.DataFrame(estimates).to_csv('../Results/'+case+'/Nouvelle_original/Estimates_'+str(nSM)+'_SM.txt', header = None, index = None)
 
 
 winsound.Beep(2000, 5000)
