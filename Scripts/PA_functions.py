@@ -625,3 +625,11 @@ def plot_results(X_todos,conf_int_inf,conf_int_sup,real_results):
     plt.ylabel('Mass Fractions [\%]')
     plt.legend()
     plt.show()
+
+def multiplyList(myList) :
+     
+    # Multiply elements one by one
+    result = 1
+    for x in myList:
+         result = result * x
+    return result
