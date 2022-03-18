@@ -8,8 +8,8 @@ from PA_functions import plot_results, preprocess_our, ouropt_1, ouropt_2, conve
 from scipy.optimize import LinearConstraint
 from scipy.optimize import fsolve
 
-folder = './../Data_Base/NGS_J19_DRK/'                                 
-file = 'NGS_J19_DRK'
+folder = './../Data_Base/FT_J191/'                                 
+file = 'FT_J191'
 use_all_peaks = 1                           # Use all peaks? (1 Yes, 0 No)
 peaks_to_analyze = 11                       # How many peaks use?
 delta = 0.05
@@ -35,7 +35,7 @@ else:
     ignorar = []
 
 ################    WHERE ARE THE OPERATIONS?    ########################
-operations = 'operations_11.txt'
+operations = 'operations_all.txt'
 if use_all_peaks == 0:
     operations = 'operations.txt'
 operations_path=folder+'/'+operations
@@ -75,9 +75,9 @@ if nEM == 2:
 
         # Define vector of unknowns and initialize its values, give an initial value to CV, and define bounds for the optimization
                 unknowns = np.ones(3)  # [X1, X2, X3, ..., MR1, MR2] 
-                lb = np.ones(5)*(1-delta)
-                ub = np.ones(5)*(1+delta)
-                lc = np.zeros(5)
+                lb = np.ones(3)*(1-delta)
+                ub = np.ones(3)*(1+delta)
+                lc = np.zeros(3)
                 unknowns[:-1] = 33
                 lb[:-1] = 0
                 ub[:-1] = 100
@@ -102,6 +102,7 @@ if nEM == 2:
                 combinations_results[hola,:] = (unknowns[0], unknowns[1], cv)
                 hola += 1
                 print(hola,"/",multiplyList(reps_em)*reps_mix)
+    print(combinations_results[:,0].mean(), combinations_results[:,1].mean())
 
 
 if nEM == 3:
@@ -144,7 +145,10 @@ if nEM == 3:
                     combinations_results[hola,:] = (unknowns[0], unknowns[1], unknowns[2], cv)
                     hola += 1
                     print(hola,"/",multiplyList(reps_em)*reps_mix)
+    print(combinations_results[:,0].mean(), combinations_results[:,1].mean(), combinations_results[:,2].mean())
 
 np.savetxt('../Results/'+file+'/'+'PGM/'+unknown_mixture+'.txt', combinations_results)
+
+
 
 
