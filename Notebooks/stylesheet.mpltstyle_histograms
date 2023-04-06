@@ -1,0 +1,24 @@
+# Set fontsize and family
+font.size: 6
+font.family: STIXGeneral
+mathtext.fontset: stix
+
+# Remove padding
+figure.constrained_layout.use: True
+figure.constrained_layout.h_pad: 0.005
+figure.constrained_layout.w_pad: 0.005
+figure.constrained_layout.hspace: 0.005
+figure.constrained_layout.wspace: 0.005
+
+lines.markersize:5
+
+# Change ticks to face in instread of out
+xtick.bottom:True
+xtick.direction:in
+ytick.direction:in
+xtick.minor.visible:True
+ytick.minor.visible:True
+
+# Remove legend box
+legend.frameon: False
+legend.fontsize: 6

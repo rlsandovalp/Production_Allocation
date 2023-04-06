@@ -6,7 +6,7 @@ real_results = pd.read_csv('../Data_Base/NGS_J19_DRK/p_NGS_J19_DRK.csv').values[
 
 nEM = 3
 nMix = 10
-folder = '../Results/NGS_J19_DRK/Our/'
+folder = '../Results/NGS_J19_DRK/PGM/'
 Mixtures = ['M'+str(mixture + 1) for mixture in range(nMix)]
 
 results_averaged = pd.read_csv(folder+'averaged.txt', header = None, sep = ',').values[:,1:]
