@@ -3,16 +3,14 @@ from scipy.optimize import minimize, nnls, fmin_slsqp
 import matplotlib.pyplot as plt
 import math
 
-# plt.style.use(['science','nature'])
+# COST FUNCTIONS OF OUR DECONVOLUTION ALGORITHM
 
-# FUNCTIONS OUR NOVEL DECONVOLUTION ALGORITHM
-
-def ouropt_1(unknowns, def_operations, em_peaks_mean, um_peaks_mean, tipo, cv, ignorar, nEM):
+def ouropt_1(unknowns, def_operations, em_peaks_mean, um_peaks_mean, tipo, cv, nEM):
     # Function to compute the loss function for a given value of cv. This function is used to obtain optimal values of x and MR.
     mini = 0
     for q, _ in enumerate(def_operations):
-        if len(set(def_operations[q][0]).intersection(ignorar))+len(set(def_operations[q][1]).intersection(ignorar))>0: 
-            continue
+        # if len(set(def_operations[q][0]).intersection(ignorar))+len(set(def_operations[q][1]).intersection(ignorar))>0: 
+        #     continue
         Rij, rij = compute_ratios_our(0, 0, unknowns, nEM, em_peaks_mean, um_peaks_mean, q, def_operations,tipo)
         phi = (1/cv)*(1+rij/Rij)/(math.sqrt(2*(1+(rij/Rij)**2)))
         gam = math.sqrt(math.pi)*phi*math.exp(phi**2)*math.erf(phi)
@@ -21,14 +19,14 @@ def ouropt_1(unknowns, def_operations, em_peaks_mean, um_peaks_mean, tipo, cv, i
         mini = mini + uno - dos
     return mini
 
-def ouropt_2(cv, unknowns, def_operations, em_peaks_mean, um_peaks_mean, tipo, ignorar, nEM):
+def ouropt_2(cv, unknowns, def_operations, em_peaks_mean, um_peaks_mean, tipo, nEM):
     # Function to compute the loss function for a given value of x, and MR. This function is used to obtain optimal values of cv.
     mini = 0
     ignorados = 0
     for q, _ in enumerate(def_operations):
-        if len(set(def_operations[q][0]).intersection(ignorar))+len(set(def_operations[q][1]).intersection(ignorar))>0: 
-            ignorados = ignorados + 1
-            continue
+        # if len(set(def_operations[q][0]).intersection(ignorar))+len(set(def_operations[q][1]).intersection(ignorar))>0: 
+        #     ignorados = ignorados + 1
+        #     continue
         Rij, rij = compute_ratios_our(0, 0, unknowns, nEM, em_peaks_mean, um_peaks_mean, q, def_operations,tipo)
         phi = (1/cv)*(1+rij/Rij)/(math.sqrt(2*(1+(rij/Rij)**2)))
         gam = math.sqrt(math.pi)*phi*math.exp(phi**2)*math.erf(phi)
